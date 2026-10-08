@@ -349,7 +349,11 @@
     let timerInterval;
 
     async function openWinModal() {
-        await fetch('/Game/AddPointsUser?score=' + score);
+        // сохраняем session и token из адресной строки iframe при отправке баллов
+        const params = new URLSearchParams(window.location.search);
+        const session = params.get('session') || '';
+        const token = params.get('token') || '';
+        await fetch(`/Game/AddPointsUser?score=${score}&session=${session}&token=${encodeURIComponent(token)}`);
         const modal = document.getElementById('winModal');
         const finalScoreSpan = document.getElementById('finalScore');
         finalScoreSpan.innerText = score;

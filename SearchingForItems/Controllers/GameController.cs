@@ -57,17 +57,32 @@ namespace SearchingForItems.Controllers
             User currentUser = _userRepository.GetCurrentUser();
             return Ok(new { score = currentUser.Score });
         }
+        // Игровая сессия портала: iframe передаёт ?session=<id>&token=<hmac>
+        private int? GameSessionId
+        {
+            get
+            {
+                var raw = Request.Query["session"].ToString();
+                return int.TryParse(raw, out var id) ? id : (int?)null;
+            }
+        }
+
+        private string? GameSessionToken => Request.Query["token"].ToString();
+
         public async Task<IActionResult> AddPointsUser()
         {
-            var userId = HttpContext.Session.GetString("UserId");
             User currentUser = _userRepository.GetCurrentUser();
             int userScore = currentUser.Score;
-            var result = await api.AddPointsAsync(userId, 11, userScore); // 11 - id игры
 
-            if (result == true)
-                return Ok();
-
-            return BadRequest();
+            try
+            {
+                var result = await api!.AddScoreAsync(GameSessionId ?? 0, GameSessionToken, userScore);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }
