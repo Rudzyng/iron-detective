@@ -63,11 +63,30 @@ namespace SearchingForItems.Controllers
             get
             {
                 var raw = Request.Query["session"].ToString();
-                return int.TryParse(raw, out var id) ? id : (int?)null;
+                if (int.TryParse(raw, out var id))
+                {
+                    HttpContext.Session.SetInt32("game_session_id", id);
+                    return id;
+                }
+
+                return HttpContext.Session.GetInt32("game_session_id");
             }
         }
 
-        private string? GameSessionToken => Request.Query["token"].ToString();
+        private string? GameSessionToken
+        {
+            get
+            {
+                var token = Request.Query["token"].ToString();
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    HttpContext.Session.SetString("game_session_token", token);
+                    return token;
+                }
+
+                return HttpContext.Session.GetString("game_session_token");
+            }
+        }
 
         public async Task<IActionResult> AddPointsUser()
         {

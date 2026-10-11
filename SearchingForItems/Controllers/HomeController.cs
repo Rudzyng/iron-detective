@@ -22,6 +22,19 @@ namespace SearchingForItems.Controllers
             return View();
         }
 
+        [HttpGet("/start")]
+        public IActionResult Start([FromQuery] int? session, [FromQuery] string? token)
+        {
+            if (session is > 0)
+            {
+                HttpContext.Session.SetInt32("game_session_id", session.Value);
+                if (!string.IsNullOrWhiteSpace(token))
+                    HttpContext.Session.SetString("game_session_token", token);
+            }
+
+            return View("Index");
+        }
+
         public IActionResult Privacy()
         {
             return View();
