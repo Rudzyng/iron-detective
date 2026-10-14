@@ -135,15 +135,15 @@
     <div class="settings-btns">
         @* <button class="setting-btn sound-btn" aria-label="Звуковые эффекты"></button> *@
         <button id="toggleMusic" class="setting-btn music-btn off" aria-label="Фоновая музыка"></button>
-        <a href="/Account/Login" class="setting-btn account-btn" aria-label="Аккаунт"></a>
+        <a asp-controller="Account" asp-action="Login" class="setting-btn account-btn" aria-label="Аккаунт"></a>
     </div>
     <div class="menu-btns">
-        <a href="/Game/Levels" class="menu-btn play-btn" aria-label="Играть"></a>
+        <a asp-controller="Game" asp-action="Levels" class="menu-btn play-btn" aria-label="Играть"></a>
         @* <a href="#"  class="menu-btn rules-btn" aria-label="Правила"></a> *@
     </div>
 </div>
 <audio id="bgMenuMusic" loop>
-    <source src="/audio/menu-theme.mp3" type="audio/mpeg">
+    <source src="@Url.Content("~/audio/menu-theme.mp3")" type="audio/mpeg">
 </audio>
 
 

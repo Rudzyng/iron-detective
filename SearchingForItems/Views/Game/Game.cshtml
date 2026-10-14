@@ -67,7 +67,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url('/images/lvl-frames.png');
+        background-image: url('@Url.Content("~/images/lvl-frames.png")');
         background-size: 100% 100%;
         image-rendering: pixelated;
         z-index: 10;
@@ -212,11 +212,11 @@
     }
 
     .pause-btn {
-        background-image: url('/images/buttons/pause-btn.png');
+        background-image: url('@Url.Content("~/images/buttons/pause-btn.png")');
     }
 
     .music-btn {
-        background-image: url('/images/buttons/music-btn.png');
+        background-image: url('@Url.Content("~/images/buttons/music-btn.png")');
     }
 
     .music-btn.off::after {
@@ -233,7 +233,7 @@
     }
 
     .pause-content {
-        background-image: url('/images/pause-modal.png');
+        background-image: url('@Url.Content("~/images/pause-modal.png")');
         background-size: 100% 100%;
         background-repeat: no-repeat;
         background-color: transparent;
@@ -332,12 +332,12 @@
         <button id="toggleMusic" class="setting-btn music-btn off" aria-label="Фоновая музыка"></button>
 
         <button class="pause-text-btn" onclick="togglePause()">Продолжить</button>
-        <a href="/" class="pause-text-btn">Главное меню</a>
+        <a asp-controller="Home" asp-action="Index" class="pause-text-btn">Главное меню</a>
     </div>
 </div>
 
 <audio id="bgMenuMusic" loop>
-    <source src="/audio/menu-theme.mp3" type="audio/mpeg">
+    <source src="@Url.Content("~/audio/menu-theme.mp3")" type="audio/mpeg">
 </audio>
 
 <script>
@@ -353,7 +353,7 @@
         const params = new URLSearchParams(window.location.search);
         const session = params.get('session') || '';
         const token = params.get('token') || '';
-        await fetch(`/Game/AddPointsUser?score=${score}&session=${session}&token=${encodeURIComponent(token)}`);
+        await fetch(`@Url.Action("AddPointsUser", "Game")?score=${score}&session=${session}&token=${encodeURIComponent(token)}`);
         const modal = document.getElementById('winModal');
         const finalScoreSpan = document.getElementById('finalScore');
         finalScoreSpan.innerText = score;
@@ -367,7 +367,7 @@
 
     async function callControllerProcessClick(isRight) {
         try {
-            const response = await fetch('/Game/ProcessClick', {
+            const response = await fetch('@Url.Action("ProcessClick", "Game")', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
