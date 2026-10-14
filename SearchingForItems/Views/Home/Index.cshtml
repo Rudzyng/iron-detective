@@ -98,6 +98,22 @@
         background-image: url('images/buttons/user-btn.png');
     }
 
+    .account-summary {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #fff;
+        font-weight: 700;
+        text-shadow: 0 2px 3px #141414;
+    }
+
+    .account-name {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .music-btn.off::after {
         content: '';
         position: absolute;
@@ -135,7 +151,13 @@
     <div class="settings-btns">
         @* <button class="setting-btn sound-btn" aria-label="Звуковые эффекты"></button> *@
         <button id="toggleMusic" class="setting-btn music-btn off" aria-label="Фоновая музыка"></button>
-        <a asp-controller="Account" asp-action="Login" class="setting-btn account-btn" aria-label="Аккаунт"></a>
+        <div class="account-summary" title="Профиль LingvoGameOs">
+            <span class="setting-btn account-btn" aria-hidden="true"></span>
+            @if (!string.IsNullOrWhiteSpace(ViewBag.PortalUserName as string))
+            {
+                <span class="account-name">@ViewBag.PortalUserName · @ViewBag.PortalTotalPoints</span>
+            }
+        </div>
     </div>
     <div class="menu-btns">
         <a asp-controller="Game" asp-action="Levels" class="menu-btn play-btn" aria-label="Играть"></a>

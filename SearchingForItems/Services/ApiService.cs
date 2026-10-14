@@ -15,32 +15,33 @@ namespace SearchingForItems.Services
 
             this._httpClient = new HttpClient();
             this._httpClient.BaseAddress = new System.Uri(baseUrl);
+            this._httpClient.Timeout = TimeSpan.FromSeconds(10);
         }
 
-        public async Task<LoginResponse?> Login(string email, string password)
+        public async Task<GameSessionResponse?> ResolveGameSessionAsync(int gameSessionId, string? token)
         {
-            var loginData = new { email = email, password = password };
-            var json = JsonSerializer.Serialize(loginData);
+            if (gameSessionId <= 0)
+                return null;
+
+            var request = new { gameSessionId, token };
+            var json = JsonSerializer.Serialize(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("/api/account/login", content);
+            var response = await _httpClient.PostAsync("/api/game/session/resolve", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-                throw new Exception($"Ошибка входа: {responseContent}");
+                throw new Exception($"Игровая сессия отклонена: {responseContent}");
 
-            return JsonSerializer.Deserialize<LoginResponse>(responseContent);
-        }
-
-        public async Task<PointsResponse?> GetPlayerPoints(string playerId)
-        {
-            var response = await _httpClient.GetAsync($"/api/users/{playerId}/points");
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                throw new Exception($"Ошибка получения баллов: {responseContent}");
-
-            return JsonSerializer.Deserialize<PointsResponse>(responseContent);
+            var result = JsonSerializer.Deserialize<GameSessionResponse>(responseContent);
+            if (result is null || !result.valid || string.IsNullOrWhiteSpace(result.userId))
+                throw new Exception("Портал вернул некорректную игровую сессию.");
+            var expectedGameId = Environment.GetEnvironmentVariable("LINGVO_GAME_ID");
+            if (!int.TryParse(expectedGameId, out var gameId) || gameId <= 0)
+                throw new Exception("LINGVO_GAME_ID не настроен для этой игры.");
+            if (result.gameId != gameId)
+                throw new Exception("Игровая сессия выдана для другой игры.");
+            return result;
         }
 
         /// <summary>
@@ -67,19 +68,19 @@ namespace SearchingForItems.Services
         }
     }
 
-    public class PointsResponse
+    public class GameSessionResponse
     {
-        public int points { get; set; }
+        public bool valid { get; set; }
+        public int gameId { get; set; }
+        public string userId { get; set; } = string.Empty;
+        public string userName { get; set; } = string.Empty;
+        public int totalUserPoints { get; set; }
     }
 
     public class ScoreResponse
     {
-        public string userId { get; set; }
+        public string userId { get; set; } = string.Empty;
         public int newTotalPoints { get; set; }
     }
 
-    public class LoginResponse
-    {
-        public string userId { get; set; }
-    }
 }
