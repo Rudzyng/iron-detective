@@ -27,6 +27,14 @@ namespace SearchingForItems.Controllers
         [HttpGet("/start")]
         public async Task<IActionResult> Start([FromQuery] int? session, [FromQuery] string? token)
         {
+            if (Request.Query["guest"] == "1")
+            {
+                if (Request.Query.ContainsKey("session") || Request.Query.ContainsKey("token"))
+                    return Unauthorized("Гостевой запуск не принимает сессию и токен");
+                HttpContext.Session.Clear();
+                HttpContext.Session.SetString("portal_guest", "true");
+                return View("Index");
+            }
             if (!ModelState.IsValid || session is not > 0 || string.IsNullOrWhiteSpace(token))
                 return Unauthorized("Портал не передал корректную игровую сессию и токен");
 
@@ -35,6 +43,7 @@ namespace SearchingForItems.Controllers
                 var portalSession = await api!.ResolveGameSessionAsync(session.Value, token);
                 if (portalSession is not null)
                 {
+                    HttpContext.Session.Remove("portal_guest");
                     HttpContext.Session.SetInt32("game_session_id", session.Value);
                     HttpContext.Session.SetString("game_session_token", token);
                     HttpContext.Session.SetString("portal_user_id", portalSession.userId);

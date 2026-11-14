@@ -62,13 +62,6 @@ namespace SearchingForItems.Controllers
         {
             get
             {
-                var raw = Request.Query["session"].ToString();
-                if (int.TryParse(raw, out var id))
-                {
-                    HttpContext.Session.SetInt32("game_session_id", id);
-                    return id;
-                }
-
                 return HttpContext.Session.GetInt32("game_session_id");
             }
         }
@@ -77,13 +70,6 @@ namespace SearchingForItems.Controllers
         {
             get
             {
-                var token = Request.Query["token"].ToString();
-                if (!string.IsNullOrWhiteSpace(token))
-                {
-                    HttpContext.Session.SetString("game_session_token", token);
-                    return token;
-                }
-
                 return HttpContext.Session.GetString("game_session_token");
             }
         }
@@ -95,6 +81,8 @@ namespace SearchingForItems.Controllers
 
             try
             {
+                if (HttpContext.Session.GetString("portal_guest") == "true")
+                    return Ok(new { isGuest = true, newTotalPoints = 0 });
                 var result = await api!.AddScoreAsync(GameSessionId ?? 0, GameSessionToken, userScore);
                 return Ok(result);
             }
